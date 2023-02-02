@@ -9,6 +9,7 @@ import {
   NotFoundException,
   UseGuards,
   Request,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ProductsService } from './products.service';
@@ -21,9 +22,21 @@ export class ProductsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async findAll() {
-    // get all products in the db
-    return await this.productsService.findAll();
+  async findAll(@Query() query) {
+    let data;
+    const modality =
+      query.orderBy && !query.search
+        ? 'order'
+        : query.search && !query.orderBy
+        ? 'search'
+        : query.search && query.orderBy
+        ? 'both'
+        : 'normal';
+    if (modality === 'order') data = query.orderBy;
+    else if (modality === 'search') data = query.search;
+    else if (modality === 'both') data = [query.search, query.orderBy];
+
+    return await this.productsService.findAll(modality, data);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -43,7 +56,10 @@ export class ProductsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  async create(@Body() product: ProductsDto, @Request() req): Promise<ProductsEntity> {
+  async create(
+    @Body() product: ProductsDto,
+    @Request() req,
+  ): Promise<ProductsEntity> {
     // create a new product and return the newly created product
     return await this.productsService.create(product, req.user.id);
   }

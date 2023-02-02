@@ -41,7 +41,6 @@ export class AuthService {
     const newUser = await this.userService.create({
       ...user,
       password: pass,
-      isDeleted: false,
       userStatus: 'Active',
     });
 

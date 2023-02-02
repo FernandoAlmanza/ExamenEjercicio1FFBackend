@@ -4,6 +4,7 @@ import { DB_EVENT_REPOSITORY, PRODUCTS_REPOSITORY } from '../../core/constants';
 import { Products } from './products.entity';
 import { ProductsDto } from './dto/products.dto';
 import { DbEvent } from '../db-events/db-events.entity';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class ProductsService {
@@ -28,12 +29,44 @@ export class ProductsService {
     return promiseSolved;
   }
 
-  async findAll(): Promise<Products[]> {
-    // TODO: Agregar orderBy y busquedas
-    return await this.productsRepository.findAll<Products>({
-      where: { isDeleted: null },
-      include: [{ model: User, attributes: { exclude: ['password'] } }],
-    });
+  async findAll(mode: string, filterBy?): Promise<Products[]> {
+    let query;
+    if (mode === 'search') {
+      query = {
+        where: {
+          isDeleted: null,
+          [Op.or]: [
+            { productName: { [Op.like]: `%${filterBy[0]}%` } },
+            { sku: { [Op.like]: `%${filterBy}%` } },
+          ],
+        },
+        include: [{ model: User, attributes: { exclude: ['password'] } }],
+      };
+    } else if (mode === 'order') {
+      query = {
+        order: [[filterBy, 'DESC']],
+        where: { isDeleted: null },
+        include: [{ model: User, attributes: { exclude: ['password'] } }],
+      };
+    } else if (mode === 'both') {
+      query = {
+        where: {
+          isDeleted: null,
+          [Op.or]: [
+            { productName: { [Op.like]: `%${filterBy[0]}%` } },
+            { sku: { [Op.like]: `%${filterBy}%` } },
+          ],
+        },
+        order: [[filterBy[1], 'DESC']],
+        include: [{ model: User, attributes: { exclude: ['password'] } }],
+      };
+    } else {
+      query = {
+        where: { isDeleted: null },
+        include: [{ model: User, attributes: { exclude: ['password'] } }],
+      };
+    }
+    return await this.productsRepository.findAll<Products>(query);
   }
 
   async findOne(id): Promise<Products | null> {

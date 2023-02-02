@@ -6,7 +6,12 @@ import { DbEventsModule } from '../db-events/db-events.module';
 import { dbEventProviders } from '../db-events/db-events.providers';
 
 @Module({
-  providers: [ProductsService, ...productsProviders, DbEventsModule, ...dbEventProviders],
+  providers: [
+    ProductsService,
+    ...productsProviders,
+    DbEventsModule,
+    ...dbEventProviders,
+  ],
   controllers: [ProductsController],
 })
 export class ProductsModule {}
