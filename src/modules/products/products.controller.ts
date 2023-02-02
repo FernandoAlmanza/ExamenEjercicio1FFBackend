@@ -24,6 +24,8 @@ export class ProductsController {
   @Get()
   async findAll(@Query() query) {
     let data;
+    const order =
+      query.orderType && !!query.orderType ? query.orderType : 'ASC';
     const modality =
       query.orderBy && !query.search
         ? 'order'
@@ -36,7 +38,7 @@ export class ProductsController {
     else if (modality === 'search') data = query.search;
     else if (modality === 'both') data = [query.search, query.orderBy];
 
-    return await this.productsService.findAll(modality, data);
+    return await this.productsService.findAll(modality, data, order);
   }
 
   @UseGuards(AuthGuard('jwt'))

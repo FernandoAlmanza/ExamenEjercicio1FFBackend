@@ -29,7 +29,7 @@ export class ProductsService {
     return promiseSolved;
   }
 
-  async findAll(mode: string, filterBy?): Promise<Products[]> {
+  async findAll(mode: string, filterBy?, orderBy?): Promise<Products[]> {
     let query;
     if (mode === 'search') {
       query = {
@@ -38,13 +38,15 @@ export class ProductsService {
           [Op.or]: [
             { productName: { [Op.like]: `%${filterBy[0]}%` } },
             { sku: { [Op.like]: `%${filterBy}%` } },
+            { productType: { [Op.like]: `%${filterBy[0]}%` } },
+            { productStatus: { [Op.like]: `%${filterBy[0]}%` } },
           ],
         },
         include: [{ model: User, attributes: { exclude: ['password'] } }],
       };
     } else if (mode === 'order') {
       query = {
-        order: [[filterBy, 'DESC']],
+        order: [[filterBy, orderBy]],
         where: { isDeleted: null },
         include: [{ model: User, attributes: { exclude: ['password'] } }],
       };
@@ -55,9 +57,11 @@ export class ProductsService {
           [Op.or]: [
             { productName: { [Op.like]: `%${filterBy[0]}%` } },
             { sku: { [Op.like]: `%${filterBy}%` } },
+            { productType: { [Op.like]: `%${filterBy[0]}%` } },
+            { productStatus: { [Op.like]: `%${filterBy[0]}%` } },
           ],
         },
-        order: [[filterBy[1], 'DESC']],
+        order: [[filterBy[1], orderBy]],
         include: [{ model: User, attributes: { exclude: ['password'] } }],
       };
     } else {
