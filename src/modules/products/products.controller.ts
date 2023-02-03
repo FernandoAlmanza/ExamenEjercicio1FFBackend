@@ -38,7 +38,7 @@ export class ProductsController {
     else if (modality === 'search') data = query.search;
     else if (modality === 'both') data = [query.search, query.orderBy];
 
-    return await this.productsService.findAll(modality, data, order);
+    return await this.productsService.findAll(modality, data, order, query.page, query.limit);
   }
 
   @UseGuards(AuthGuard('jwt'))

@@ -29,10 +29,13 @@ export class ProductsService {
     return promiseSolved;
   }
 
-  async findAll(mode: string, filterBy?, orderBy?): Promise<Products[]> {
+  async findAll(mode: string, filterBy?, orderBy?, page?: number, limit?: number): Promise<{ rows: Products[]; count: number }> {
     let query;
+    limit = limit ?? 5;
     if (mode === 'search') {
       query = {
+        limit,
+        offset: limit * (page - 1),
         where: {
           isDeleted: null,
           [Op.or]: [
@@ -46,12 +49,16 @@ export class ProductsService {
       };
     } else if (mode === 'order') {
       query = {
+        limit,
+        offset: limit * (page - 1),
         order: [[filterBy, orderBy]],
         where: { isDeleted: null },
         include: [{ model: User, attributes: { exclude: ['password'] } }],
       };
     } else if (mode === 'both') {
       query = {
+        limit,
+        offset: limit * (page - 1),
         where: {
           isDeleted: null,
           [Op.or]: [
@@ -66,11 +73,13 @@ export class ProductsService {
       };
     } else {
       query = {
+        limit,
+        offset: limit * (page - 1),
         where: { isDeleted: null },
         include: [{ model: User, attributes: { exclude: ['password'] } }],
       };
     }
-    return await this.productsRepository.findAll<Products>(query);
+    return await this.productsRepository.findAndCountAll<Products>(query);
   }
 
   async findOne(id): Promise<Products | null> {
