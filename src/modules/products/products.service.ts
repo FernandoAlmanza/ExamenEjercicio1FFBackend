@@ -49,7 +49,7 @@ export class ProductsService {
       };
     } else if (mode === 'order') {
       query = {
-        limit,
+        limit: limit,
         offset: limit * (page - 1),
         order: [[filterBy, orderBy]],
         where: { isDeleted: null },
@@ -57,7 +57,7 @@ export class ProductsService {
       };
     } else if (mode === 'both') {
       query = {
-        limit,
+        limit: limit,
         offset: limit * (page - 1),
         where: {
           isDeleted: null,
@@ -73,7 +73,7 @@ export class ProductsService {
       };
     } else {
       query = {
-        limit,
+        limit: limit,
         offset: limit * (page - 1),
         where: { isDeleted: null },
         include: [{ model: User, attributes: { exclude: ['password'] } }],
